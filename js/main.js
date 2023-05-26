@@ -1,29 +1,35 @@
-// main.js
+// main.js  
 
-async function fetchData () {
-    const url = `https://en.wikipedia.org/w/api.php?action=${action}&list=${events}&srsearch=Craig%20Noone&format=${format}`
+async function getPotd() {
+    const url = 'https://en.wikipedia.org/w/api.php';
     const today = new Date();
-    const date_iso = today.toISOString().slice(0, 10);    
-    let title = "Template:POTD_protected/" + date_iso;
-
-    let params = {
-        "action": "query",
-        "format": "json",
-        "formatversion": "2",
-        "prop": "images",
-        "titles": title
-      };
-
-    console.log('Title' + title);
-    console.log("params" + params);
+    const date_iso = today.toISOString().slice(0, 10);
+    const params = new URLSearchParams({
+        action: 'query',
+        list: 'pictures',
+        format: 'json',
+        pllimit: 1,
+        prop: 'images',
+        titles: "Template:POTD_protected/" + date_iso
+    });
+  
+    try {
+        const response = await fetch(`${url}?${params}`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+            },
+        });
+  
+        const data = await response.json();
+        const potdUrl = data.query.pages[0].images[0].imageinfo[0].url;
+        console.log(potdUrl);
+    } catch (error) {
+        console.error('Error fetching POTD:', error);
+    }
 }
-
-function transformData () {
-    // todo
-}
-
-const button = document.getElementById('refresh-button');
+  
+const button = document.getElementById('execute_button');
 
 button.addEventListener('click', function() {
-  console.log("button clicked!");
+    getPotd();
 });
